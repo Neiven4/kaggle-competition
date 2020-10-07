@@ -1,0 +1,36 @@
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import mean_absolute_error
+
+# Reading and cleaning data
+
+train_data = pd.read_csv("../input/titanic/train.csv")
+test_data = pd.read_csv("../input/titanic/test.csv")
+
+train_data["Embarked"] = train_data["Embarked"].fillna(train_data["Embarked"].mode()[0])
+train_data.drop(["Cabin", "Age"], axis=1, inplace=True)
+
+test_data["Embarked"] = test_data["Embarked"].fillna(test_data["Embarked"].mode()[0])
+test_data["Fare"] = test_data["Fare"].fillna(test_data["Fare"].mode()[0])
+test_data.drop(["Cabin", "Age"], axis=1, inplace=True)
+
+# denoting target and features
+
+y = train_data.Survived
+object_features = ["Name", "Sex", "Ticket", "Embarked"]
+features = ["Name", "Sex", "Ticket", "Embarked", "Pclass", "SibSp", "Fare", "Parch"]
+norm_features =  ["Pclass", "SibSp", "Fare", "Parch"]
+X_train = train_data[norm_features]
+X_test = test_data[norm_features]
+
+# Training model
+
+model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1)
+model.fit(X_train, y)
+prediction = model.predict(X_test)
+
+#saving output
+
+output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': prediction})
+output.to_csv('my_submission2.csv', index=False)
+print("Your submission was successfully saved!")
